@@ -10,3 +10,9 @@ export { formatGrowthRate, formatFileSize, formatNumber, formatCurrency } from "
 
 // 文件下载
 export { downloadFile } from "./download";
+
+// 防抖
+export { debounce } from "./debounce";
+
+// WebSocket 通信
+export { createWebSocket, DEFAULT_WEBSOCKET_URL } from "./websocket";
