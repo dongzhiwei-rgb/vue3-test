@@ -62,5 +62,5 @@
 3. `opacity: 0;` 占空间且能交互
 4. `position: absolute; left: -9999px;`
 5. `height:0; overflow: hidden;` 
-6. `clip: rect(0,0,0,0);`裁剪为不可见区域
+6. `clip: rect(0,0,0,0);`裁剪为不可见区域 （top,right,bottom,left）
 7. `transform: scale(0);`缩小到不可见
