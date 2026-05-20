@@ -64,3 +64,11 @@
 5. `height:0; overflow: hidden;` 
 6. `clip: rect(0,0,0,0);`裁剪为不可见区域 （top,right,bottom,left）
 7. `transform: scale(0);`缩小到不可见
+
+* `display: none; 与 visibility: hidden;`对初始渲染性能友好，动态操作会有影响。其他操作由于元素参与渲染与布局，对性能有一定影响
+* **回流**：重新排版与布局
+    
+    **重绘** ：显示属性改变不影响元素位置和尺寸
+
+## link与@import引用css
+
