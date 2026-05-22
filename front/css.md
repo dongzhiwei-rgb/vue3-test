@@ -199,3 +199,98 @@
     * CSS Modules： 模块化方式，让每个JS文件都有独立的CSS，避免全局命名冲突。
 
 ## z-index属性失效
+1. 元素定位不是`absolute、relative、fixed、sticky`
+2. z-indx值为`auto`
+    * 元素会<font color='red'>遵循文档流的顺序</font>和<font color='red'>兄弟元素在当前堆叠上下文的位置</font>，不允许任何自定义的堆叠顺序。
+3. 元素不在同一个堆叠上下文
+    * 元素拥有<font color='red'>特定CSS属性</font>时，会创建新的堆叠上下文。
+
+        * position属性为`absolute`、`relative`、`fixed`、`sticky`且`z-index`不为`auto`
+        * 父元素设置了
+            * `transform`
+            * `opacity`
+            * `filter`：滤镜效果（颜色反转、灰度化、对比度、亮度）
+            * `will-change`：性能优化提示属性，提前告知浏览器某个元素的特定属性即将变化，提前进行优化准备【创建独立的GPU合成层、预分配内存等】），按需使用不得全局用需要及时移除，结合JS动态控制
+            * `perspective`：设置相机与Z=0平面的距离，为3D转换元素提供透视效果，值越小，透视效果越明显
+            * `clip-path`：裁剪区域，决定元素可见部分
+
+## transform属性
+1. `translate`
+2. `scale`
+3. `rotate`
+4. `skew`：扭曲元素
+5. `matrix`：结合多个功能综合变化，接收六个参数，表示2D变换矩阵
+
+## 水平垂直居中
+1. flex布局，`justify-content`和`align-items`属性
+2. grid布局，`place-items`属性(同时水平和垂直居中)
+3. 绝对定位+transform:translate(-50%,-50%);
+
+## 如何根据设计稿进行移动端适配
+
+1. 流式布局，避免使用固定宽度，采用百分比
+2. 媒体查询 
+    ```html
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    ```
+3. 视口单位：vw、vh
+4. 弹性单位：rem，em
+5. 图片适配：srcset
+    ```html
+    <picture>
+        <source srcset="small.jpg" media="(max-width: 600px)">
+        <source srcset="large.jpg" media="(min-width: 601px)">
+        <img src="default.jpg" alt="Example Image">
+    </picture>
+    ```
+6. JS响应式设计
+    ```js
+    window.addEventListener('resize', function() {
+            if (window.innerWidth < 600) {
+                document.body.style.backgroundColor = 'lightblue';
+            } else {
+                document.body.style.backgroundColor = 'white';
+            }
+    });    
+    ```
+
+## Flex布局
+* 灵活高效的响应式布局模式
+
+## 响应式设计概念及基本
+* 一种网页设计方法，使网页能够在各种设备和窗口或屏幕尺寸上良好的显示和操作。核心目的是提供良好的用户体验。
+* 通过使用**灵活的网格布局（百分比定义元素宽度）、可调整的图像和媒体查询**，根据设备特征自动调整网页布局。
+
+
+## 清除浮动？方式？
+* 为避免由于浮动元素<font color='red'>脱离正常文档流</font>而引发的布局问题。会影响父元素和后续兄弟元素的显示效果。
+* 使用空的清除浮动元素`clear:both`
+    ```css
+    /* 在浮动元素之后插入一个空的拥有clear样式的div*/
+    .clearfix {
+        clear: both;
+    }
+    ```
+* 使用伪元素`::after`清除浮动
+    ```css
+    /* 在父元素的CSS规则中添加伪元素*/
+    .clearfix::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    ```
+* 使用`overflow`属性清除浮动
+    ```css
+    /* overflow属性让父元素包裹浮动的子元素*/
+    .container {
+        overflow: auto;/* hidden*/
+    }
+    ```
+* 使用`display: flow-root`清除浮动
+    ```css
+    /* 创建一个新的块级格式化上下文（BFC）*/
+    .container {
+        display: flow-root;
+    }
+    ```
