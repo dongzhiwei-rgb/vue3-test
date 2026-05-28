@@ -295,3 +295,54 @@
     }
     ```
 
+## clear清除浮动的原理
+* 主要作用是阻止元素周围的浮动元素影响到自身。`clear`属性定义了元素的哪些边不能与前面的浮动元素相邻。
+    * `none`：默认值，不清除任何浮动
+    * `left`：清除元素左侧浮动
+    * `right`：清除元素右侧浮动
+    * `both`：清除元素两侧浮动
+
+## BFC块级格式化上下文
+* CSS独立渲染区域，内部布局不受外部元素影响。（解决浮动、清除浮动、边距重叠）
+1. 设置元素`float`属性为`left`或`right`
+2. 设置元素`position`属性为`absolute`或`fixed`
+3. 设置元素`display`属性为`inline-block`或`table-cell`
+4. 设置元素`overflow`属性为`hidden`、`auto`或`scroll`
+
+## sticky
+* 一开始嵌在页面中，当页面滚动超出它的位置，它又需要固定在顶部位置
+* 与`absolute`和`fixed`不同，不会脱离文档流（默认排列规则）
+* 未达到指定的方向位置时，表现为`position: relative`；一旦达到其滚动位置，切换为固定定位`position: fixed`，但只固定在指定的相对位置
+* 父元素不能有`overflow: hidden;`、`overflow: auto;`或`overflow: scroll;`
+
+## 1px问题
+* 在移动端开发时，由于设备屏幕高分辨率，导致在网页上显示的1像素线条实际显示时看起来比设计稿中的要粗。
+
+
+## 父选择器?不存在
+* CSS本质是一个单向的、从上到下的样式描述语言
+    * JS动态修改父元素，`parentElement`
+    * 预处理器
+        ```scss
+            .child-class {
+            // ...
+            
+                @at-root .parent-class & {
+                    // 父选择器的样式
+                }
+            }
+
+        ```
+
+## 快速选取同组兄弟元素的偶数序号元素
+* 伪类选择器(某一类型)
+```css
+.element:nth-of-type(even) {
+  /* 样式 */
+}
+```
+2. `:nth-child()`
+3. `:nth-last-child()`和`:nth-last-of-type()`
+4. `:first-child`和`:last-child`
+
+
