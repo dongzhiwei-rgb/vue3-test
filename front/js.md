@@ -120,3 +120,224 @@
 * arguments是类数组而不是数组
     1. 历史原因：早期引入，JS还没有真正的数组对象，被设计成类数组对象
     2. 性能考虑：实现为真正的数组可能会带来一些性能开销，类数组对象可以更高效实现某些操作
+
+## escape、encodeURI、encodeURIComponent
+1. escape已废弃，用于字符串编码
+2. encodeURI编码整个URL，除了一些在URL中有特定含义的字符`/?=&+#`
+3. encodeURIComponent编码URL整个参数
+
+
+## 判断一个对象是否属于某个类
+1. instanceof 运算符
+    * 用于检测构造函数的`prototype`属性，是否出现在某个实例对象的原型链上
+2. constructor 属性
+    * 每个对象都有一个`construsctor`属性，指向创建该对象的构造函数
+3. Object.prototype.isPrototypeOf() 方法
+    * 测试一个对象是否出存在于另一个对象的原型链上
+4. Object.getPrototypeOf() 方法
+    * 返回指定对象的原型
+
+## AJAX
+* 异步通信，局部更新数据，不用刷新整个网页
+* 创建AJAX请求
+    * 创建XMLHttpRequest对象
+    * 对象上使用open方法创建一个HTTP请求
+    * 为对象添加一些信息和监听函数（setRequestHeader方法添加头信息，onreadystatechange事件监听对象的5个状态值变化，4代表服务器返回的数据接收完成）
+    * 调用sent方法来向服务器发起请求
+    ```js
+    function makeAjaxRequest(url, method, data, callback) {
+    const xhr = new XMLHttpRequest();
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+            callback(null, xhr.responseText);
+        } else {
+            callback(new Error('请求失败: ' + xhr.status));
+        }
+        }
+    };
+    
+    xhr.open(method, url, true);
+    
+    if (method.toUpperCase() === 'POST') {
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(data));
+    } else {
+        xhr.send();
+    }
+    }
+
+    // 使用示例
+    makeAjaxRequest('https://api.example.com/data', 'GET', null, function(error, response) {
+    if (error) {
+        console.error('出错了:', error);
+    } else {
+        console.log('收到响应:', response);
+    }
+    });
+    ```
+## Fetch
+* 基于Promise，支持async/await
+* 语法简洁直观
+* 原生支持，不需要额外的库
+* 不会自动拒绝HTTP错误状态
+    ```js
+    fetch('https://api.example.com/data')
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+    ```
+
+## Axios
+* 基于Promise的HTTP客户端，API更简洁
+    ```js
+    axios.get('https://api.example.com/data')
+    .then(response => {
+        console.log(response.data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+    ```
+    * 支持浏览器和Node.js
+    * 自动转换JSON数据
+    * 可以拦截请求和响应`request.interceptors.response.use()`
+    * 可以取消请求`CancelToken`、`AbortController`
+        * `CancelToken`：创建一个取消令牌（cancel token）附加到请求中，调用 cancel() 方法取消
+            ```js
+            // 创建取消令牌源
+            const CancelToken = axios.CancelToken
+            const source = CancelToken.source()
+
+            // 将 CancelToken 附加到请求
+            axios.get('https://api.example.com/data ', { cancelToken: source.token })
+              .then(response => {
+                  console.log(response.data);
+              })
+              .catch(error => {
+                  if (axios.isCancel(error)) {
+                      console.log('请求被取消:', error.message);
+                  } else {
+                      console.error('其他错误:', error);
+                  }
+              });
+
+            // 取消请求
+            cancelToken.cancel('操作已取消');
+            ```
+        * `AbortController`：基于 Fetch API 的 AbortController 实现，通过传递 AbortController 实例的 signal 属性来取消请求。
+            ```js
+            // 创建 AbortController 实例
+            const controller = new AbortController();
+            const signal = controller.signal;
+
+            // 将信号传递给 Axios 请求
+            axios.get('https://api.example.com/data ', { signal })
+              .then(response => {
+                  console.log(response.data);
+              })
+              .catch(error => {
+                  if (error.name  === 'AbortError') {
+                      console.log('请求被取消:', error.message);
+                  } else {
+                      console.error('其他错误:', error);
+                  }
+              });
+
+            // 取消请求
+            controller.abort('操作已取消');
+            ```
+    * 客户端支持防御XSRF
+
+## mouseover/mouseenter
+* mouseover 鼠标指针进入元素或子元素时会触发（冒泡）
+* mouserenter 只在鼠标指针进入元素时触发
+
+## substring/substr
+1. `substring(startIndex,endIndex)`方法：
+* startIndex：开始提取字符的位置
+* endIndex：结束提取字符的位置（不包含该位置）
+2. `substr(startIndex, length)`方法：
+* startIndex：开始提取字符的位置
+* length：要提取的字符数
+    ```js
+    let str = "Hello, World!";
+
+    console.log(str.substring(0, 5)); // 输出: "Hello"
+    console.log(str.substr(0, 5));    // 输出: "Hello"
+
+    console.log(str.substring(7, 12)); // 输出: "World"
+    console.log(str.substr(7, 5));     // 输出: "World"
+    ```
+3. 负值参数的处理
+* substring 方法将负值参数都转换为0
+* substr 方法允许第一个参数为负，会从字符串末尾开始计数
+    ```js
+    let str = "Hello, World!";
+
+    console.log(str.substring(-3)); // 输出: "Hello, World!"
+    console.log(str.substr(-3));    // 输出: "ld!"
+    ```
+4. 参数顺序
+* substring 方法会自动调整参数顺序，让startIndex始终小于等于endIndex。substr不会
+```js
+let str = "Hello, World!";
+
+console.log(str.substring(5, 2)); // 输出: "llo"
+console.log(str.substr(5, 2));    // 输出: ", "
+```
+
+<font color='red'>substring在现代浏览器中得到了很好的支持，而substr方法虽然仍被广泛使用，但已被MDN标记为废弃。未来substring兼容会更好</font>
+
+## map和forEach函数中能否通过break语法结束循环
+* map和forEach方法中是<font color='red'>不能直接使用break或continue语句</font>来结束循环。因为map和forEach是**高阶函数**，设计初衷就是要遍历整个数组
+
+## 合并对象
+* Object.assign()或者拓展运算符... 来浅合并js对象。loadsh库
+
+## 事件机制
+* JS 的事件传播分为<font color='red'>捕获、目标和冒泡</font>三个阶段。事件默认是从外层向目标元素传播（捕获阶段），然后从目标向外传播（冒泡阶段）。我们通常监听冒泡阶段来做事件处理，也可以通过 addEventListener 的第三个参数控制监听阶段，并用 stopPropagation() 来阻止继续传播。
+
+## splice与slice
+* splice(startIndex, length)会改变原数组，可以用来添加或删除元素，返回被删除元素
+* slice(startIndex, endIndex)不会改变原数组，而是返回一个新的数组，**包含原数组的一部分浅拷贝**
+
+## 判断网页元素是否达到可视区域
+1. Intersection Observer API
+    
+    ***性能好，不会阻塞主线程，使用相对简单***
+    ```js
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+            console.log('元素进入可视区域');
+            // 在这里执行你的逻辑
+            }
+        });
+    });
+
+    const target = document.querySelector('#your-element');
+    observer.observe(target);
+    ```
+
+2. getBoundingClientRect() 
+
+    ***更精确控制，兼容旧版浏览器***
+    ```js
+    function isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
+    }
+
+    // 使用
+    const element = document.querySelector('#your-element');
+    if (isElementInViewport(element)) {
+    console.log('元素在可视区域内');
+    }
+    ```
