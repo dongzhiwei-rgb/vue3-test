@@ -323,7 +323,7 @@ console.log(str.substr(5, 2));    // 输出: ", "
 
 2. getBoundingClientRect() 
 
-    ***更精确控制，兼容旧版浏览器***
+    ***更精确控制，兼容旧版浏览器，滚动事件中频繁调用影响性能***
     ```js
     function isElementInViewport(el) {
     const rect = el.getBoundingClientRect();
@@ -341,3 +341,69 @@ console.log(str.substr(5, 2));    // 输出: ", "
     console.log('元素在可视区域内');
     }
     ```
+
+3. Element.checkVisibility()
+    
+    ***新API，直接检查元素是否可见***
+    ```js
+    const element = document.querySelector('#your-element');
+    if (element.checkVisibility()) {
+        console.log('元素可见');
+    }
+    // 接受一个选项对象，精细控制
+    element.checkVisibility({
+        checkOpacity: true,  // 检查 opacity 是否为 0
+        checkVisibilityCSS: true  // 检查 visibility CSS 属性
+    });
+    ```
+
+## for..in / for...of
+1. for...in 更适合遍历对象的可枚举属性。会遍历对象的原型链(使用`Object.hasOwnProperty`检查)。
+    ```js
+    /* 遍历数组会读取到意外值*/
+    const arr = [1, 2, 3];
+    arr.foo = 'bar';
+
+    for (const index in arr) {
+        console.log(index); // 输出: "0", "1", "2", "foo"
+    }
+    ```
+2. for...of 更适合遍历可迭代对象。性能更好，保证顺序。
+    ```js
+    /* 同时获取数组的索引和值，配合Array.entries
+        遍历对象也能通过Object.entries()、Object.keys()、Object.values() + for...of实现 */
+    const arr = ['a', 'b', 'c'];
+    for (const [index, value] of arr.entries()) {
+        console.log(index, value); // 输出: 0 "a", 1 "b", 2 "c"
+    }
+    ```
+
+## Object.entres()
+
+***静态方法返回一个数组，包含给定对象自有的可枚举字符串键属性的键值对***
+```js
+const obj = { foo: "bar", baz: 42 };
+console.log(Object.entries(obj)); // [ ['foo', 'bar'], ['baz', 42] ]
+
+// 类数组对象
+const obj = { 0: "a", 1: "b", 2: "c" };
+console.log(Object.entries(obj)); // [ ['0', 'a'], ['1', 'b'], ['2', 'c'] ]
+
+// 具有随机键排序的类数组对象
+const anObj = { 100: "a", 2: "b", 7: "c" };
+console.log(Object.entries(anObj)); // [ ['2', 'b'], ['7', 'c'], ['100', 'a'] ]
+
+// getFoo 是一个不可枚举的属性
+const myObj = Object.create(
+  {},
+  {
+    getFoo: {
+      value() {
+        return this.foo;
+      },
+    },
+  },
+);
+myObj.foo = "bar";
+console.log(Object.entries(myObj)); // [ ['foo', 'bar'] ]
+```
